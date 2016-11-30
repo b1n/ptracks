@@ -34,15 +34,15 @@ __date__ = "2015/11"
 # < imports >--------------------------------------------------------------------------------------
 
 # model 
-import model.model_wizard as model
+import ptracks.model.model_wizard as model
 
 # view 
-import view.view_wizard as view
+import ptracks.view.view_wizard as view
 
 # control 
-import control.control_manager as control
+import ptracks.control.control_manager as control
 
-import control.config.config_wizard as config
+import ptracks.control.config.config_wizard as config
 
 # < class CControlWizard >-------------------------------------------------------------------------
 

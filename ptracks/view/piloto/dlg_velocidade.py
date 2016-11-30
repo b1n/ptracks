@@ -41,10 +41,10 @@ from PyQt4 import QtCore
 from PyQt4 import QtGui
 
 # view
-import view.piloto.dlg_velocidade_ui as dlg
+import ptracks.view.piloto.dlg_velocidade_ui as dlg
 
 # control
-import control.control_debug as dbg
+import ptracks.control.control_debug as dbg
 
 # < class CDlgVelocidade >----------------------------------------------------------------------------
 

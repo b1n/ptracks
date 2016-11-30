@@ -33,7 +33,7 @@ __date__ = "2015/11"
 # < imports >--------------------------------------------------------------------------------------
 
 # model
-import model.newton.defs_newton as ldefs
+import ptracks.model.newton.defs_newton as ldefs
 
 # -------------------------------------------------------------------------------------------------
 def sent_crv(ff_proa_atu, ff_proa_dem):

@@ -42,11 +42,11 @@ from PyQt4 import QtCore
 from PyQt4 import QtGui
 
 # view
-import view.view_manager as view
-import view.wizard.dlg_wizard as wzd
+import ptracks.view.view_manager as view
+import ptracks.view.wizard.dlg_wizard as wzd
 
 # control
-import control.events.events_basic as events
+import ptracks.control.events.events_basic as events
 
 # < class CViewWizard >-----------------------------------------------------------------------------
 

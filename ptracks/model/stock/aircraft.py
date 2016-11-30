@@ -36,10 +36,10 @@ __date__ = "2015/11"
 import copy
 
 # libs
-import libs.coords.pos_lat_lng as pll
+import ptracks.libs.coords.pos_lat_lng as pll
 
 # model
-import model.stock.adiru as cadi
+import ptracks.model.stock.adiru as cadi
 
 # < class CAircraft >------------------------------------------------------------------------------
 

@@ -36,7 +36,7 @@ __date__ = "2016/01"
 import copy
 
 # libs
-import libs.coords.pos_lat_lng as pll
+import ptracks.libs.coords.pos_lat_lng as pll
 
 # < class CADIRU >---------------------------------------------------------------------------------
 

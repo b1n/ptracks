@@ -36,7 +36,7 @@ __date__ = "2016/08"
 # < imports >--------------------------------------------------------------------------------------
 
 # control
-import control.control_manager as control
+import ptracks.control.control_manager as control
 
 # < class CControlBasic >--------------------------------------------------------------------------
 

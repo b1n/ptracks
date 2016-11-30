@@ -41,13 +41,13 @@ from PyQt4 import QtCore
 from PyQt4 import QtGui
 
 # libs
-import libs.coords.coord_defs as cdefs
+import ptracks.libs.coords.coord_defs as cdefs
 
 # view
-import view.piloto.dlg_altitude_ui as dlg
+import ptracks.view.piloto.dlg_altitude_ui as dlg
 
 # control
-import control.control_debug as dbg
+import ptracks.control.control_debug as dbg
 
 # < class CDlgAltitude >---------------------------------------------------------------------------
 

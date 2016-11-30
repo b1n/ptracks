@@ -37,11 +37,11 @@ __date__ = "2015/11"
 import os
 
 # model
-import model.stock.airspace_basic as airs
+import ptracks.model.stock.airspace_basic as airs
 
-import model.items.esp_data as espdata
-import model.items.sub_data as subdata
-import model.items.trj_data as trjdata
+import ptracks.model.items.esp_data as espdata
+import ptracks.model.items.sub_data as subdata
+import ptracks.model.items.trj_data as trjdata
 
 # import model.piloto.defs_piloto as ldefs
 

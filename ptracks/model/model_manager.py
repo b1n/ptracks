@@ -39,8 +39,8 @@ __date__ = "2016/08"
 # < imports >--------------------------------------------------------------------------------------
 
 # control
-import control.events.events_manager as event
-import control.config.config_manager as config
+import ptracks.control.events.events_manager as event
+import ptracks.control.config.config_manager as config
 
 # < class CModelManager >--------------------------------------------------------------------------
 

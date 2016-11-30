@@ -38,12 +38,12 @@ import os
 import sys
 
 # libs
-import libs.coords.coord_sys as coords
+import ptracks.libs.coords.coord_sys as coords
 
 # model
-import model.model_manager as model
-import model.emula.emula_piloto as emula
-import model.piloto.airspace_piloto as airs
+import ptracks.model.model_manager as model
+import ptracks.model.emula.emula_piloto as emula
+import ptracks.model.piloto.airspace_piloto as airs
 
 # control
 # import control.events.events_basic as events

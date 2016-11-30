@@ -42,7 +42,7 @@ from PyQt4 import QtCore
 from PyQt4 import QtGui
 
 # view
-import view.piloto.dlg_decolagem_ui as dlg
+import ptracks.view.piloto.dlg_decolagem_ui as dlg
 
 # < class CDlgDecolagem >--------------------------------------------------------------------------
 

@@ -44,11 +44,11 @@ import threading
 import time
 
 # model 
-import model.glb_data as gdata
+import ptracks.model.glb_data as gdata
 
 # control
-import control.events.events_manager as evtmgr
-import control.events.events_basic as events
+import ptracks.control.events.events_manager as evtmgr
+import ptracks.control.events.events_basic as events
 
 # < class CControlManager >------------------------------------------------------------------------
 
