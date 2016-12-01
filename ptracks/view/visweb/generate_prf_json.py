@@ -37,7 +37,7 @@ import json
 import logging
 
 # libs
-import libs.coords.coord_defs as cdefs
+import ptracks.libs.coords.coord_defs as cdefs
 
 # ------------------------------------------------------------------------------------------------
 def generate_prf_json(fdct_prf, fs_prf):

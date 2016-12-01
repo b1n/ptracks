@@ -38,7 +38,7 @@ import logging
 import time
 
 # model
-import model.newton.defs_newton as ldefs
+import ptracks.model.newton.defs_newton as ldefs
 
 # ------------------------------------------------------------------------------------------------
 def generate_status_json(fdct_flight, fs_callsign):

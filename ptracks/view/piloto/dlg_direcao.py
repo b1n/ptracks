@@ -43,7 +43,7 @@ from PyQt4 import QtGui
 import ptracks.view.piloto.dlg_direcao_ui as dlg
 
 # control
-import control.control_debug as dbg
+import ptracks.control.control_debug as dbg
 
 # < class CDlgDirecao >----------------------------------------------------------------------------
 

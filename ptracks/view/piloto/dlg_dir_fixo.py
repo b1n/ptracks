@@ -35,6 +35,7 @@ __date__ = "2015/12"
 # python library
 import json
 import os
+import logging
 
 # PyQt library
 from PyQt4 import QtCore

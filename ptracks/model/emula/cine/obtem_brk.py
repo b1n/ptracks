@@ -36,7 +36,7 @@ __date__ = "2015/11"
 import logging
 
 # libs
-import libs.coords.coord_defs as cdefs
+import ptracks.libs.coords.coord_defs as cdefs
 
 # model
 import ptracks.model.newton.defs_newton as ldefs
