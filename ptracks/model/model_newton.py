@@ -35,6 +35,7 @@ __date__ = "2015/11"
 # python library
 import logging
 import os.path
+import sys
 
 # libs
 import ptracks.libs.coords.coord_sys as coords
@@ -52,6 +53,9 @@ import ptracks.model.items.trf_data as trfdata
 
 import ptracks.model.newton.airspace_newton as airs
 import ptracks.model.newton.defs_newton as ldefs
+
+# control
+import ptracks.control.events.events_basic as event
 
 # < class CModelNewton >----------------------------------------------------------------------------
 

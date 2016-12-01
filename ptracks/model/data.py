@@ -20,6 +20,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+revision 0.3  2016/nov  contemmcm
+looking for data directory in the current path, not script's directory
+
 revision 0.2  2015/nov  mlabru
 pep8 style conventions
 
@@ -41,6 +44,7 @@ import os
 # data
 M_DATA_PY = os.path.abspath(os.path.dirname(__file__))
 M_DATA_DIR = os.path.normpath(os.path.join(M_DATA_PY, ".."))
+M_DATA_RUN = os.getcwd()
 
 # -------------------------------------------------------------------------------------------------
 def filepath(f_filename):
@@ -48,7 +52,9 @@ def filepath(f_filename):
     determine the path to a file in the data directory.
     """
     # return
-    return os.path.join(M_DATA_DIR, f_filename)
+    # return os.path.join(M_DATA_DIR, f_filename)
+    return os.path.join(M_DATA_RUN, f_filename)
+
 
 # -------------------------------------------------------------------------------------------------
 def load(f_filename, f_mode="rb"):
