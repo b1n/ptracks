@@ -44,8 +44,10 @@ import struct
 import time
 
 # model 
-import ptracks.model.glb_data as gdata
-import ptracks.model.glb_defs as gdefs
+import ptracks.model.common.glb_data as gdata
+
+# control
+import ptracks.control.common.glb_defs as gdefs
 
 # < class CNetListener >---------------------------------------------------------------------------
 

@@ -35,22 +35,31 @@ __date__ = "2016/03"
 # python library
 import logging
 import multiprocessing
+import os
 import Queue
+import sys
 import time
 
+import sip
+sip.setapi('QString', 2)
+
+# PyQt library
+from PyQt4 import QtCore
+from PyQt4 import QtGui 
+
 # model 
-import ptracks.model.glb_data as gdata
-import ptracks.model.glb_defs as gdefs
-import ptracks.model.model_piloto as model
+import ptracks.model.common.glb_data as gdata
+import ptracks.model.piloto.model_piloto as model
 
 # view 
-import ptracks.view.view_piloto as view
+import ptracks.view.piloto.view_piloto as view
 
 # control 
+# import ptracks.control.control_debug as cdbg
 import ptracks.control.control_basic as control
 
+import ptracks.control.common.glb_defs as gdefs
 import ptracks.control.config.config_piloto as config
-
 import ptracks.control.events.events_config as events
 
 import ptracks.control.network.get_address as gaddr
@@ -75,6 +84,7 @@ class CControlPiloto(control.CControlBasic):
         super(CControlPiloto, self).__init__()
 
         # herdados de CControlManager
+        # self.app       # the application
         # self.event     # event manager
         # self.config    # opções de configuração
         # self.model     # model manager
@@ -83,6 +93,7 @@ class CControlPiloto(control.CControlBasic):
 
         # herdados de CControlBasic
         # self.ctr_flight    # flight control
+        # self.sck_send      # net sender
         # self.sim_stat      # simulation statistics
         # self.sim_time      # simulation timer
 
@@ -94,6 +105,9 @@ class CControlPiloto(control.CControlBasic):
         self.__dct_config = self.config.dct_config
         assert self.__dct_config
 
+        # create application
+        self.create_app("piloto")
+                
         # create simulation statistics control
         # self.sim_stat = stats.SimStats()
         # assert self.sim_stat
@@ -113,39 +127,39 @@ class CControlPiloto(control.CControlBasic):
         self.__sck_snd_cpil = sender.CNetSender(lt_ifce, ls_addr, li_port, self.__q_snd_cpil)
         assert self.__sck_snd_cpil
 
-        # cria a queue de recebimento de configuração
+        # cria a queue de recebimento de comando/controle/configuração
         self.__q_rcv_cnfg = multiprocessing.Queue()
         assert self.__q_rcv_cnfg
 
-        # obtém o endereço de envio
+        # obtém o endereço de recebimento
         lt_ifce, ls_addr, li_port = gaddr.get_address(self.config, "net.cnfg")
 
-        # cria o socket de recebimento de configuração
+        # cria o socket de recebimento de comando/controle/configuração
         self.__sck_rcv_cnfg = listener.CNetListener(lt_ifce, ls_addr, li_port, self.__q_rcv_cnfg)
         assert self.__sck_rcv_cnfg
-
-        # cria o socket de acesso ao servidor
-        self.__sck_http = httpsrv.CNetHttpGet(self.event, self.config)
-        assert self.__sck_http
 
         # cria a queue de recebimento de pistas
         self.__q_rcv_trks = multiprocessing.Queue()
         assert self.__q_rcv_trks
 
-        # obtém o endereço de envio
+        # obtém o endereço de recebimento
         lt_ifce, ls_addr, li_port = gaddr.get_address(self.config, "net.trks")
 
         # cria o socket de recebimento de pistas
         self.__sck_rcv_trks = listener.CNetListener(lt_ifce, ls_addr, li_port, self.__q_rcv_trks)
         assert self.__sck_rcv_trks
 
+        # cria o socket de acesso ao servidor
+        self.__sck_http = httpsrv.CNetHttpGet(self.event, self.config)
+        assert self.__sck_http
+
         # instancia o modelo
         self.model = model.CModelPiloto(self)
         assert self.model
 
         # get flight model
-        self.__emula_model = self.model.emula_model
-        assert self.__emula_model
+        self.__emula = self.model.emula
+        assert self.__emula
 
         # create view manager
         self.view = view.CViewPiloto(self, self.model)
@@ -156,16 +170,16 @@ class CControlPiloto(control.CControlBasic):
         """
         drive application
         """
-        # verifica condições de execução (I)
+        # model and view ok ?
         if (self.model is None) or (self.view is None):
             # termina a aplicação sem confirmação e sem envio de fim
             self.cbk_termina()
 
-        # verifica condições de execução (I)
+        # clear to go
         assert self.event
+        assert self.__emula
         assert self.__q_rcv_cnfg
         assert self.__sck_rcv_cnfg
-        assert self.__emula_model
 
         # temporização de scheduler
         lf_tim_rrbn = self.config.dct_config["tim.rrbn"]
@@ -180,7 +194,7 @@ class CControlPiloto(control.CControlBasic):
         self.__sck_rcv_cnfg.start()
 
         # starts flight model
-        self.__emula_model.start()
+        self.__emula.start()
 
         # obtém o tempo inicial em segundos
         lf_now = time.time()
@@ -190,12 +204,9 @@ class CControlPiloto(control.CControlBasic):
             try:
                 # obtém um item da queue de configuração (nowait)
                 llst_data = self.__q_rcv_cnfg.get(False)
-                # M_LOG.debug("llst_data:[{}]".format(llst_data))
 
                 # queue tem dados ?
                 if llst_data:
-                    # M_LOG.debug("llst_data[0]:[{}]".format(llst_data[0]))
-
                     # mensagem de aceleração ?
                     if gdefs.D_MSG_ACC == int(llst_data[0]):
                         # acelera/desacelera a aplicação
@@ -278,12 +289,11 @@ class CControlPiloto(control.CControlBasic):
         """
         DOCUMENT ME!
         """
-        # verifica condições de execução
-        # assert self.sim_time
+        # clear to go
+        assert self.sim_time
 
         # inicia o relógio da simulação
-        # self.sim_time.set_hora_ini((0, 0, 0))
-        pass
+        self.sim_time.set_hora((0, 0, 0))
 
     # =============================================================================================
     # data
@@ -291,18 +301,18 @@ class CControlPiloto(control.CControlBasic):
 
     # ---------------------------------------------------------------------------------------------
     @property
-    def emula_model(self):
+    def emula(self):
         """
         get flight model
         """
-        return self.__emula_model
+        return self.__emula
 
-    @emula_model.setter
-    def emula_model(self, f_val):
+    @emula.setter
+    def emula(self, f_val):
         """
         set flight model
         """
-        self.__emula_model = f_val
+        self.__emula = f_val
 
     # ---------------------------------------------------------------------------------------------
     @property

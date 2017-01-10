@@ -39,20 +39,13 @@ import threading
 import time
 
 # model
-import ptracks.model.glb_data as gdata
-import ptracks.model.glb_defs as gdefs
-
+import ptracks.model.common.glb_data as gdata
 import ptracks.model.emula.emula_model as model
 import ptracks.model.visil.aircraft_visil as canv
 
 # control
+import ptracks.control.common.glb_defs as gdefs
 import ptracks.control.events.events_flight as events
-
-# < module data >----------------------------------------------------------------------------------
-
-# logger
-# M_LOG = logging.getLogger(__name__)
-# M_LOG.setLevel(logging.DEBUG)
 
 # < class CEmulaVisil >----------------------------------------------------------------------------
 
@@ -64,7 +57,6 @@ class CEmulaVisil (model.CEmulaModel):
     been generated it is handed by the flight engine
     """
     # ---------------------------------------------------------------------------------------------
-    # void (?)
     def __init__(self, f_model, f_control):
         """
         initializes the app and prepares everything
@@ -72,10 +64,7 @@ class CEmulaVisil (model.CEmulaModel):
         @param f_model: model manager
         @param f_control: control manager
         """
-        # logger
-        # M_LOG.info("__init__:>>")
-
-        # verifica parametros de entrada
+        # check input
         assert f_control
 
         # inicia a super classe
@@ -89,11 +78,11 @@ class CEmulaVisil (model.CEmulaModel):
         # self.dct_flight    # dictionary for all active flights
         # self.model         # model manager
 
-        # obtém a queue de dados
+        # queue de dados
         self.__q_rcv_trks = f_control.q_rcv_trks
         assert self.__q_rcv_trks
 
-        # obtém o data listener
+        # data listener
         self.__sck_rcv_trks = f_control.sck_rcv_trks
         assert self.__sck_rcv_trks
 
@@ -101,18 +90,11 @@ class CEmulaVisil (model.CEmulaModel):
         gdata.G_LCK_FLIGHT = threading.Lock()
         assert gdata.G_LCK_FLIGHT
 
-        # logger
-        # M_LOG.info("__init__:<<")
-
     # ---------------------------------------------------------------------------------------------
-    # void (?)
     def run(self):
         """
         checks whether it's time to created another flight
         """
-        # logger
-        # M_LOG.info("run:>>")
-
         # check de colisão
         lf_tim_evnt = self.dct_config["tim.evnt"]
 
@@ -126,19 +108,20 @@ class CEmulaVisil (model.CEmulaModel):
 
         # loop
         while gdata.G_KEEP_RUN:
-            # obtém o tempo inicial em segundos
+            # tempo inicial em segundos
             ll_now = time.time()
 
-            # obtém um item da queue de entrada
+            # item da queue de entrada
             llst_data = self.__q_rcv_trks.get()
-            # M_LOG.debug("llst_data: (%s)" % str(llst_data))
+            # cdbg.M_DBG.debug("llst_data: (%s)" % str(llst_data))
 
             # queue tem dados ?
             if llst_data:
                 # mensagem de status de aeronave ?
                 if gdefs.D_MSG_NEW == int(llst_data[0]):
+                    # callsign
                     ls_callsign = llst_data[10]
-                    # M_LOG.debug("run:callsign:[{}]".format(llst_data[10]))
+                    # cdbg.M_DBG.debug("run:callsign:[{}]".format(llst_data[10]))
 
                     # trava a lista de vôos
                     gdata.G_LCK_FLIGHT.acquire()
@@ -170,7 +153,7 @@ class CEmulaVisil (model.CEmulaModel):
                 # elif gdefs.D_MSG_KLL == int(llst_data[0]):
                     '''
                     # coloca a mensagem na queue
-                    # M_LOG.debug("Elimina: (%s)" % str(ls_callsign))
+                    # cdbg.M_DBG.debug("Elimina: (%s)" % str(ls_callsign))
 
                     # trava a lista de vôos
                     gdata.G_LCK_FLIGHT.acquire()
@@ -188,7 +171,7 @@ class CEmulaVisil (model.CEmulaModel):
                     # cria um evento de eliminação de aeronave
                     l_evt = events.CFlightKill(ls_callsign)
                     assert l_evt
-                    # M_LOG.debug("l_evt: " + str(l_evt))
+                    # cdbg.M_DBG.debug("l_evt: " + str(l_evt))
 
                     # dissemina o evento
                     self.event.post(l_evt)'''
@@ -198,18 +181,15 @@ class CEmulaVisil (model.CEmulaModel):
                     # logger
                     l_log = logging.getLogger("CEmulaVisil::run")
                     l_log.setLevel(logging.WARNING)
-                    l_log.warning("<E01: Mensagem não reconhecida ou não tratada.")
+                    l_log.warning("<E01: mensagem não reconhecida ou não tratada.")
 
-            # obtém o tempo final em segundos e calcula o tempo decorrido
+            # tempo final em segundos e calcula o tempo decorrido
             ll_dif = time.time() - ll_now
 
             # esta adiantado ?
             if lf_tim_evnt > ll_dif:
                 # permite o scheduler (1/10th)
                 time.sleep(lf_tim_evnt - ll_dif)
-
-        # logger
-        # M_LOG.info("run:<<")
 
     # =============================================================================================
     # data

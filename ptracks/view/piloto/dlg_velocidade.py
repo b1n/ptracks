@@ -62,10 +62,7 @@ class CDlgVelocidade(QtGui.QDialog, dlg.Ui_CDlgVelocidade):
         # init super class
         super(CDlgVelocidade, self).__init__(f_parent)
 
-        # salva o control manager localmente
-        # self.__control = f_control
-
-        # salva o dicionário de performances
+        # dicionário de performances
         self.__dct_prf = fdct_prf
                 
         # monta a dialog
@@ -90,13 +87,11 @@ class CDlgVelocidade(QtGui.QDialog, dlg.Ui_CDlgVelocidade):
         if fdct_prf is not None:
             # faixa de velocidade
             self.sbx_vel.setRange(1., self.__dct_prf["vel_max_crz"])
-            dbg.M_DBG.debug("__on_rbt_vel_clicked:vel_max:[{}]".format(self.__dct_prf["vel_max_crz"]))
 
         # senão,...
         else:
             # faixa de velocidade
             self.sbx_vel.setRange(1., 500.)
-            dbg.M_DBG.debug("__on_rbt_vel_clicked:vel_max:[500]")
 
         # configura botões
         self.bbx_velocidade.button(QtGui.QDialogButtonBox.Cancel).setText("&Cancela")

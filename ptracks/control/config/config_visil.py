@@ -37,7 +37,7 @@ import argparse
 import os
 
 # model 
-import ptracks.model.data as data
+import ptracks.model.common.data as data
 
 # control
 import ptracks.control.config.config_manager as config
@@ -49,13 +49,7 @@ class CConfigVisil(config.CConfigManager):
     mantém as informações de configuração
     """
     # informações comuns de configuração
-    __CFG_VISIL = {"tab.aer": "tabAer",    # tabela de aeródromos
-                   "tab.apx": "tabApx",    # tabela de aproximações
-                   "tab.esp": "tabEsp",    # tabela de esperas
-                   "tab.fix": "tabFix",    # tabela de fixos
-                   "tab.sub": "tabSub",    # tabela de subidas
-                   "tab.trj": "tabTrj",    # tabela de trajetórias
-                  }  # __CFG_VISIL
+    __CFG_VISIL = {}  # __CFG_VISIL
 
     # ---------------------------------------------------------------------------------------------
     def __init__(self, fs_cnfg):
@@ -94,35 +88,6 @@ class CConfigVisil(config.CConfigManager):
         self.dct_config["glb.canal"] = abs(int(l_args.canal))
 
         # load dirs section
-        self.__load_dirs()
-
-    # ---------------------------------------------------------------------------------------------
-    def __load_dirs(self):
-        """
-        carrega as configurações de diretórios
-        """
-        # monta o diretório de airspaces
-        self.dct_config["dir.air"] = data.filepath(os.path.join(self.dct_config["dir.dat"],
-                                                                self.dct_config["dir.air"]))
-
-        # monta o diretório de exercícios
-        self.dct_config["dir.exe"] = data.filepath(os.path.join(self.dct_config["dir.dat"],
-                                                                self.dct_config["dir.exe"]))
-
-        # monta o diretório de imagens
-        self.dct_config["dir.img"] = data.filepath(os.path.join(self.dct_config["dir.dat"],
-                                                                self.dct_config["dir.img"]))
-
-        # monta o diretório de landscapes
-        self.dct_config["dir.map"] = data.filepath(os.path.join(self.dct_config["dir.dat"],
-                                                                self.dct_config["dir.map"]))
-
-        # monta o diretório de procedimentos
-        self.dct_config["dir.prc"] = data.filepath(os.path.join(self.dct_config["dir.dat"],
-                                                                self.dct_config["dir.prc"]))
-                                                                                                                                                                
-        # monta o diretório de tabelas
-        self.dct_config["dir.tab"] = data.filepath(os.path.join(self.dct_config["dir.dat"],
-                                                                self.dct_config["dir.tab"]))
+        self.load_dirs()
 
 # < the end >--------------------------------------------------------------------------------------

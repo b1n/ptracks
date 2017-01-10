@@ -41,9 +41,10 @@ import os
 import socket
 
 # model 
-import ptracks.model.data as data
+import ptracks.model.common.data as data
 
 # control
+import ptracks.control.common.glb_defs as gdefs
 import ptracks.control.config.config_manager as config
 
 # < class CConfigNewton >--------------------------------------------------------------------------
@@ -53,20 +54,7 @@ class CConfigNewton(config.CConfigManager):
     mantém as informações de configuração
     """
     # informações comuns de configuração
-    __CFG_NEWTON = {"glb.canal": 3,     # canal
-                    "glb.exe": None,    # exercício
-
-                    "srv.addr": "localhost",    # server address
-                    "srv.port": 61000,          # server port (61244)
-
-                    "tab.aer": "tabAer",    # tabela de aeródromos
-                    "tab.apx": "tabApx",    # tabela de procedimentos de aproximação
-                    "tab.esp": "tabEsp",    # tabela de procedimentos de espera
-                    "tab.fix": "tabFix",    # tabela de fixos
-                    "tab.prf": "tabPrf",    # tabela de performances
-                    "tab.sub": "tabSub",    # tabela de procedimentos de subida
-                    "tab.trj": "tabTrj",    # tabela de procedimentos de trajetória
-                   }  # __CFG_NEWTON
+    __CFG_NEWTON = {}  # __CFG_NEWTON
 
     # ---------------------------------------------------------------------------------------------
     def __init__(self, fs_config):
@@ -97,13 +85,13 @@ class CConfigNewton(config.CConfigManager):
         l_parser.add_argument("-c", "--canal",
                               dest="canal",
                               default=self.dct_config["glb.canal"],
-                              help=u"Canal de comunicação (default: {})".format(int(self.dct_config["glb.canal"])))
+                              help=u"canal de comunicação (default: {})".format(int(self.dct_config["glb.canal"])))
 
         # argumento: exercício
         l_parser.add_argument("-e", "--exe",
                               dest="exe",
                               default=self.dct_config["glb.exe"],
-                              help=u"Exercício (default: {})".format(self.dct_config["glb.exe"]))
+                              help=u"exercício (default: {})".format(self.dct_config["glb.exe"]))
 
         # faz o parser da linha de argumentos
         l_args = l_parser.parse_args()
@@ -114,31 +102,6 @@ class CConfigNewton(config.CConfigManager):
         self.dct_config["glb.exe"] = str(l_args.exe)
 
         # load dirs section
-        self.__load_dirs()
-
-    # ---------------------------------------------------------------------------------------------
-    def __load_dirs(self):
-        """
-        carrega as configurações de diretórios
-        """
-        # monta o diretório de airspaces
-        self.dct_config["dir.air"] = data.filepath(os.path.join(self.dct_config["dir.dat"],
-                                                                self.dct_config["dir.air"]))
-
-        # monta o diretório de exercícios
-        self.dct_config["dir.exe"] = data.filepath(os.path.join(self.dct_config["dir.dat"],
-                                                                self.dct_config["dir.exe"]))
-
-        # monta o diretório de procedimentos
-        self.dct_config["dir.prc"] = data.filepath(os.path.join(self.dct_config["dir.dat"],
-                                                                self.dct_config["dir.prc"]))
-
-        # monta o diretório de tabelas
-        self.dct_config["dir.tab"] = data.filepath(os.path.join(self.dct_config["dir.dat"],
-                                                                self.dct_config["dir.tab"]))
-
-        # monta o diretório de tráfegos
-        self.dct_config["dir.trf"] = data.filepath(os.path.join(self.dct_config["dir.dat"],
-                                                                self.dct_config["dir.trf"]))
+        self.load_dirs()
 
 # < the end >--------------------------------------------------------------------------------------

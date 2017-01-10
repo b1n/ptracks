@@ -46,8 +46,11 @@ import os
 import ptracks.libs.coords.coord_defs as cdefs
 
 # model 
-import ptracks.model.glb_data as gdata
-import ptracks.model.glb_defs as gdefs
+import ptracks.model.common.glb_data as gdata
+import ptracks.model.common.data as fdata
+
+# control
+import ptracks.control.common.glb_defs as gdefs
 
 # < class CConfigManager >-------------------------------------------------------------------------
 
@@ -56,21 +59,21 @@ class CConfigManager(object):
     mantém as informações comuns de configuração
     """
     # informações comuns de configuração
-    __CFG_COMMON = {"dir.air": gdefs.D_DIR_AIR,    # diretório de airspaces
-                    "dir.dat": gdefs.D_DIR_DAT,    # diretório de dados
-                    "dir.exe": gdefs.D_DIR_EXE,    # diretório de exercícios
-                    "dir.img": gdefs.D_DIR_IMG,    # diretório de imagens
-                    "dir.map": gdefs.D_DIR_MAP,    # diretório de mapas
-                    "dir.prc": gdefs.D_DIR_PRC,    # diretório de procedimentos
-                    "dir.snd": gdefs.D_DIR_SND,    # diretório de sons
-                    "dir.tab": gdefs.D_DIR_TAB,    # diretório de tabelas
-                    "dir.trf": gdefs.D_DIR_TRF,    # diretório de tráfegos
+    __CFG_COMMON = {"dir.air": gdefs.D_DIR_AIR,      # diretório de airspaces
+                    "dir.dat": gdefs.D_DIR_DAT,      # diretório de dados
+                    "dir.exe": gdefs.D_DIR_EXE,      # diretório de exercícios
+                    "dir.img": gdefs.D_DIR_IMG,      # diretório de imagens
+                    "dir.map": gdefs.D_DIR_MAP,      # diretório de mapas
+                    "dir.prc": gdefs.D_DIR_PRC,      # diretório de procedimentos
+                    "dir.snd": gdefs.D_DIR_SND,      # diretório de sons
+                    "dir.tab": gdefs.D_DIR_TAB,      # diretório de tabelas
+                    "dir.trf": gdefs.D_DIR_TRF,      # diretório de tráfegos
 
-                    "glb.canal": gdata.G_CANAL,    # canal de comunicação
+                    "glb.canal": gdata.G_CANAL,      # canal de comunicação
 
-                    "map.lat": cdefs.M_REF_LAT,    # latitude de referência do mapa
-                    "map.lng": cdefs.M_REF_LNG,    # longitude de referência do mapa
-                    "map.dcl": cdefs.M_DCL_MAG,    # declinação magnética na referência
+                    "map.lat": cdefs.M_REF_LAT,      # latitude de referência do mapa
+                    "map.lng": cdefs.M_REF_LNG,      # longitude de referência do mapa
+                    "map.dcl": cdefs.M_DCL_MAG,      # declinação magnética na referência
 
                     "net.addr": gdefs.D_NET_ADDR,    # endereço default
                     "net.cnfg": gdefs.D_NET_CNFG,    # endereço multicast de configuração
@@ -82,6 +85,18 @@ class CConfigManager(object):
                     "net.voip": gdefs.D_NET_VOIP,    # endereço multicast de voip
                     "net.port": gdefs.D_NET_PORT,    # porta de comunicação
                     "net.vers": gdefs.D_MSG_VRS,     # versão do protocolo
+
+                    "srv.addr": gdefs.D_SRV_ADDR,    # server address
+                    "srv.port": gdefs.D_SRV_PORT,    # server port (61000)
+
+                    "tab.aer": gdefs.D_TBL_AER,      # tabela de aeródromos
+                    "tab.fix": gdefs.D_TBL_FIX,      # tabela de fixos
+                    "tab.prf": gdefs.D_TBL_PRF,      # tabela de performances
+
+                    "tab.apx": gdefs.D_TBL_APX,      # tabela de procedimentos de aproximação
+                    "tab.esp": gdefs.D_TBL_ESP,      # tabela de procedimentos de espera
+                    "tab.sub": gdefs.D_TBL_SUB,      # tabela de procedimentos de subida
+                    "tab.trj": gdefs.D_TBL_TRJ,      # tabela de procedimentos de trajetória
 
                     "tab.clr": gdefs.D_TBL_COLOUR,   # color table
                     "tab.fnt": gdefs.D_TBL_FONT,     # font table
@@ -105,6 +120,9 @@ class CConfigManager(object):
 
         @param fs_path: full path do arquivo de configuração
         """
+        # check input
+        assert fs_path
+        
         # load default values in dictionary
         self.__dct_config = self.__CFG_COMMON.copy()
         assert self.__dct_config is not None
@@ -122,6 +140,39 @@ class CConfigManager(object):
             for l_section in l_cp.sections():
                 for l_option in l_cp.options(l_section):
                     self.__dct_config[str(l_section.lower() + '.' + l_option.lower())] = l_cp.get(l_section, l_option)
+        
+    # ---------------------------------------------------------------------------------------------
+    def load_dirs(self):
+        """
+        carrega as configurações de diretórios
+        """
+        # monta o diretório de airspaces
+        self.dct_config["dir.air"] = fdata.filepath(os.path.join(self.dct_config["dir.dat"],
+                                                                 self.dct_config["dir.air"]))
+
+        # monta o diretório de exercícios
+        self.dct_config["dir.exe"] = fdata.filepath(os.path.join(self.dct_config["dir.dat"],
+                                                                 self.dct_config["dir.exe"]))
+
+        # monta o diretório de imagens
+        self.dct_config["dir.img"] = fdata.filepath(os.path.join(self.dct_config["dir.dat"],
+                                                                 self.dct_config["dir.img"]))
+
+        # monta o diretório de landscapes
+        self.dct_config["dir.map"] = fdata.filepath(os.path.join(self.dct_config["dir.dat"],
+                                                                 self.dct_config["dir.map"]))
+
+        # monta o diretório de procedimentos
+        self.dct_config["dir.prc"] = fdata.filepath(os.path.join(self.dct_config["dir.dat"],
+                                                                 self.dct_config["dir.prc"]))
+
+        # monta o diretório de tabelas
+        self.dct_config["dir.tab"] = fdata.filepath(os.path.join(self.dct_config["dir.dat"],
+                                                                 self.dct_config["dir.tab"]))
+
+        # monta o diretório de tráfegos
+        self.dct_config["dir.trf"] = fdata.filepath(os.path.join(self.dct_config["dir.dat"],
+                                                                 self.dct_config["dir.trf"]))
 
     # =============================================================================================
     # data
@@ -140,7 +191,7 @@ class CConfigManager(object):
         """
         config manager data dictionary
         """
-        # verifica parâmetros de entrada
+        # check input
         assert f_val is not None
 
         # save a shallow copy

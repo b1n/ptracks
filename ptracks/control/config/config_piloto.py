@@ -37,9 +37,10 @@ import argparse
 import os
 
 # model 
-import ptracks.model.data as data
+import ptracks.model.common.data as data
 
 # control
+# import control.control_debug as dbg
 import ptracks.control.config.config_manager as config
 
 # < class CConfigPiloto >--------------------------------------------------------------------------
@@ -49,14 +50,7 @@ class CConfigPiloto(config.CConfigManager):
     mantém as informações de configuração
     """
     # informações comuns de configuração
-    __CFG_PILOTO = {"tab.aer": "tabAer",    # tabela de aeródromos
-                    "tab.esp": "tabApx",    # tabela de procedimentos de aproximação
-                    "tab.esp": "tabEsp",    # tabela de procedimentos de espera
-                    "tab.fix": "tabFix",    # tabela de fixos
-                    "tab.prf": "tabPrf",    # tabela de performances
-                    "tab.sub": "tabSub",    # tabela de procedimentos de subida
-                    "tab.trj": "tabTrj",    # tabela de procedimentos de trajetória
-                   }  # __CFG_PILOTO
+    __CFG_PILOTO = {}  # __CFG_PILOTO
 
     # ---------------------------------------------------------------------------------------------
     def __init__(self, fs_config):
@@ -68,15 +62,13 @@ class CConfigPiloto(config.CConfigManager):
         # init super class
         super(CConfigPiloto, self).__init__(fs_config)
 
-        # herdados de ConfigTracks
+        # herdados de CConfigManager
         # self.dct_config    # config manager data dictionary
 
         # carrega os atributos locais no dicionário de configuração
         for l_key in self.__CFG_PILOTO.keys():
             if l_key not in self.dct_config:
                 self.dct_config[l_key] = self.__CFG_PILOTO[l_key]
-
-        # l_log.info("self.dct_config: " + str ( self.dct_config ))
 
         # cria um parser para os argumentos
         l_parser = argparse.ArgumentParser(description="Piloto (C) 2014-2016.")
@@ -96,27 +88,6 @@ class CConfigPiloto(config.CConfigManager):
         self.dct_config["glb.canal"] = int(l_args.canal)
 
         # load dirs section
-        self.__load_dirs()
-
-    # ---------------------------------------------------------------------------------------------
-    def __load_dirs(self):
-        """
-        carrega as configurações de diretórios
-        """
-        # monta o diretório de aeródromos
-        self.dct_config["dir.aer"] = data.filepath(os.path.join(self.dct_config["dir.dat"], 
-                                                                self.dct_config["dir.aer"]))
-
-        # monta o diretório de airspaces 
-        self.dct_config["dir.air"] = data.filepath(os.path.join(self.dct_config["dir.dat"],
-                                                                self.dct_config["dir.air"]))
-                                                                                
-        # monta o diretório de procedimentos
-        self.dct_config["dir.prc"] = data.filepath(os.path.join(self.dct_config["dir.dat"],
-                                                                self.dct_config["dir.prc"]))
-
-        # monta o diretório de tabelas
-        self.dct_config["dir.tab"] = data.filepath(os.path.join(self.dct_config["dir.dat"], 
-                                                                self.dct_config["dir.tab"]))
+        self.load_dirs()
 
 # < the end >--------------------------------------------------------------------------------------

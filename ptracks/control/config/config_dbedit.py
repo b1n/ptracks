@@ -36,7 +36,7 @@ __date__ = "2015/11"
 import os
 
 # model 
-import ptracks.model.data as data
+import ptracks.model.common.data as data
 
 # control
 import ptracks.control.config.config_manager as config
@@ -48,16 +48,7 @@ class CConfigDBEdit(config.CConfigManager):
     mantém as informações de configuração do editor da base de dados
     """
     # informações comuns de configuração
-    __CFG_DBEDIT = {"glb.exe": None,    # exercício
-
-                    "tab.aer": "tabAer",    # tabela de aeródromos
-                    "tab.apx": "tabApx",    # tabela de aproximações
-                    "tab.esp": "tabEsp",    # tabela de procedimentos de espera
-                    "tab.fix": "tabFix",    # tabela de fixos
-                    "tab.prf": "tabPrf",    # tabela de performances
-                    "tab.sub": "tabSub",    # tabela de procedimentos de subida
-                    "tab.trj": "tabTrj",    # tabela de procedimentos de trajetória
-                   }  # __CFG_DBEDIT
+    __CFG_DBEDIT = {}  # __CFG_DBEDIT
 
     # ---------------------------------------------------------------------------------------------
     def __init__(self, fs_path):
@@ -78,27 +69,6 @@ class CConfigDBEdit(config.CConfigManager):
                 self.dct_config[l_key] = self.__CFG_DBEDIT[l_key]
 
         # load dirs section
-        self.__load_dirs()
-
-    # ---------------------------------------------------------------------------------------------
-    def __load_dirs(self):
-        """
-        carrega as configurações de diretórios
-        """
-        # monta o diretório de exercícios
-        self.dct_config["dir.exe"] = data.filepath(os.path.join(self.dct_config["dir.dat"],
-                                                                self.dct_config["dir.exe"]))
-
-        # monta o diretório de procedimentos
-        self.dct_config["dir.prc"] = data.filepath(os.path.join(self.dct_config["dir.dat"],
-                                                                self.dct_config["dir.prc"]))
-
-        # monta o diretório de tabelas
-        self.dct_config["dir.tab"] = data.filepath(os.path.join(self.dct_config["dir.dat"],
-                                                                self.dct_config["dir.tab"]))
-
-        # monta o diretório de tráfegos
-        self.dct_config["dir.trf"] = data.filepath(os.path.join(self.dct_config["dir.dat"],
-                                                                self.dct_config["dir.trf"]))
+        self.load_dirs()
 
 # < the end >--------------------------------------------------------------------------------------

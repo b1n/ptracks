@@ -48,20 +48,22 @@ from PyQt4 import QtCore
 from PyQt4 import QtGui
 
 # model 
-import ptracks.model.glb_data as gdata
-import ptracks.model.glb_defs as gdefs
-
-import ptracks.model.model_visil as model
+import ptracks.model.common.glb_data as gdata
+import ptracks.model.visil.model_visil as model
 
 # view 
-import ptracks.view.view_visil as view
+import ptracks.view.visil.view_visil as view
 
 # control 
+# import ptracks.control.control_debug as cdbg
 import ptracks.control.control_basic as control
 
+import ptracks.control.common.glb_defs as gdefs
 import ptracks.control.config.config_visil as config
+import ptracks.control.events.events_config as events
 
 import ptracks.control.network.get_address as gaddr
+import ptracks.control.network.net_http_get as httpsrv
 import ptracks.control.network.net_listener as listener
 
 import ptracks.control.simula.sim_time as stime
@@ -75,7 +77,7 @@ class CControlVisil(control.CControlBasic):
     # ---------------------------------------------------------------------------------------------
     def __init__(self):
         """
-        DOCUMENT ME!
+        constructor
         """
         # inicia a super classe
         super(CControlVisil, self).__init__()
@@ -103,7 +105,7 @@ class CControlVisil(control.CControlBasic):
         assert self.__dct_config
 
         # create application
-        self.__create_app()
+        self.create_app("visil")
 
         # create simulation statistics control
         # self.sim_stat = simStats.simStats()
@@ -135,64 +137,21 @@ class CControlVisil(control.CControlBasic):
         self.__sck_rcv_trks = listener.CNetListener(lt_ifce, ls_addr, li_port, self.__q_rcv_trks)
         assert self.__sck_rcv_trks
 
+        # cria o socket de acesso ao servidor
+        self.__sck_http = httpsrv.CNetHttpGet(self.event, self.config)
+        assert self.__sck_http
+
         # instancia o modelo
         self.model = model.CModelVisil(self)
         assert self.model
 
         # get flight model
-        self.__emula_model = self.model.emula_model
-        assert self.__emula_model
+        self.__emula = self.model.emula
+        assert self.__emula
 
         # create view manager
         self.view = view.CViewVisil(self, self.model)
         assert self.view
-
-    # ---------------------------------------------------------------------------------------------
-    def __create_app(self):
-        """
-        DOCUMENT ME!
-        """
-        # create application
-        self.app = QtGui.QApplication(sys.argv)
-        assert self.app
-
-        # M_LOG.debug("currentThread:{}".format(threading.currentThread()))
-
-        # setup application parameters
-        self.app.setOrganizationName("sophosoft")
-        self.app.setOrganizationDomain("sophosoft.com.br")
-        self.app.setApplicationName("visil")
-
-        self.app.setWindowIcon(QtGui.QIcon(os.path.join(self.__dct_config["dir.img"], "icon_app.png")))
-
-        # load logo
-        l_pix_logo = QtGui.QPixmap(os.path.join(self.__dct_config["dir.img"], "logo_python.png"))
-        assert l_pix_logo
-
-        # create splash screen
-        self.splash = QtGui.QSplashScreen(l_pix_logo, QtCore.Qt.WindowStaysOnTopHint)
-        assert self.splash
-
-        self.splash.setMask(l_pix_logo.mask())
-
-        # create the progress bar
-        # self.progressBar = QtGui.QProgressBar(self.splash)
-        # self.progressBar.setGeometry(    self.splash.width() / 10, 8 * self.splash.height() / 10,
-        #                              8 * self.splash.width() / 10,     self.splash.height() / 10)
-
-        # message = 'hello'
-        # label = QtGui.QLabel("<font color=red size=72><b>{0}</b></font>".format(message), self.splash)
-        # label.setGeometry(1 * self.splash.width() / 10, 8 * self.splash.height() / 10,
-        #                   8 * self.splash.width() / 10, 1 * self.splash.height() / 10)
-
-        # show splash screen
-        self.splash.show()
-
-        # update the progress bar
-        # self.progressBar.setValue(50)
-
-        # process events (before main loop)
-        self.app.processEvents()
 
     # ---------------------------------------------------------------------------------------------
     def run(self):
@@ -200,7 +159,8 @@ class CControlVisil(control.CControlBasic):
         drive application
         """
         # verifica condições de execução (I)
-        assert self.__emula_model
+        assert self.event
+        assert self.__emula
         assert self.__q_rcv_cnfg
         assert self.__sck_rcv_cnfg
 
@@ -214,7 +174,7 @@ class CControlVisil(control.CControlBasic):
         self.__sck_rcv_cnfg.start()
 
         # starts flight model
-        self.__emula_model.start()
+        self.__emula.start()
 
         # keep things running
         gdata.G_KEEP_RUN = True
@@ -227,11 +187,9 @@ class CControlVisil(control.CControlBasic):
             try:
                 # obtém um item da queue de configuração
                 llst_data = self.__q_rcv_cnfg.get(False)
-                # M_LOG.debug("llst_data:[{}]",format(llst_data))
 
                 # queue tem dados ?
                 if llst_data:
-
                     # mensagem de aceleração ?
                     if gdefs.D_MSG_ACC == int(llst_data[0]):
                         # acelera/desacelera a aplicação
@@ -242,18 +200,17 @@ class CControlVisil(control.CControlBasic):
                         # liga/desliga call-sign
                         pass  # self._oView.cbkToggleCallSign()
 
-                        # M_LOG.debug("liga/desliga callsign")
-
                     # mensagem configuração de exercício ?
                     elif gdefs.D_MSG_EXE == int(llst_data[0]):
+                        # cria um evento de configuração de exercício
+                        l_evt = events.CConfigExe(llst_data[1])
+                        assert l_evt
 
-                        # liga/desliga call-sign
-                        pass  # self._oView.cbkToggleCallSign()
-
-                        # M_LOG.debug("configuração de exercício")
-
+                        # dissemina o evento
+                        self.event.post(l_evt)
+                                                
                     # mensagem de fim de execução ?
-                    if gdefs.D_MSG_FIM == int(llst_data[0]):
+                    elif gdefs.D_MSG_FIM == int(llst_data[0]):
                         # termina a aplicação
                         self.cbk_termina()
 
@@ -267,19 +224,26 @@ class CControlVisil(control.CControlBasic):
                         # liga/desliga range mark
                         pass  # self._oView.cbkToggleRangeMark()
 
-                        # M_LOG.debug("liga/desliga range mark")
-
+                    # mensagem de endereço do servidor ?
+                    elif gdefs.D_MSG_SRV == int(llst_data[0]):
+                        # salva o endereço do servidor
+                        self.__dct_config["srv.addr"] = str(llst_data[1])
+                                                                                        
                     # mensagem de hora ?
                     elif gdefs.D_MSG_TIM == int(llst_data[0]):
-                        # M_LOG.debug("llst_data[1]:(%s)" % str(llst_data[1]))
-
                         # monta uma tupla com a mensagem de hora
                         lt_hora = tuple(int(l_s) for l_s in llst_data[1][1: -1].split(','))
-                        # M_LOG.debug("lt_hora:(%s)" % str(lt_hora))
 
                         # seta a hora de simulação
                         self.sim_time.set_hora(lt_hora)
-
+                                                                                                                                        
+                        # cria um evento de configuração de hora de simulação
+                        l_evt = events.CConfigHora(self.sim_time.get_hora_format())
+                        assert l_evt
+                                                                                                                                                                                                                
+                        # dissemina o evento
+                        self.event.post(l_evt)
+                                                                                                                                                                                                                                                                
                     # mensagem de descongelamento ?
                     elif gdefs.D_MSG_UFZ == int(llst_data[0]):
                         # defreeze application
@@ -294,7 +258,6 @@ class CControlVisil(control.CControlBasic):
 
             # em caso de não haver mensagens...
             except Queue.Empty:
-
                 # salva o tempo anterior
                 lf_ant = lf_now
 
@@ -333,14 +296,14 @@ class CControlVisil(control.CControlBasic):
 
     # ---------------------------------------------------------------------------------------------
     @property
-    def emula_model(self):
+    def emula(self):
         """
         get flight model
         """
-        return self.__emula_model
+        return self.__emula
 
-    @emula_model.setter
-    def emula_model(self, f_val):
+    @emula.setter
+    def emula(self, f_val):
         """
         set flight model
         """
@@ -348,7 +311,22 @@ class CControlVisil(control.CControlBasic):
         assert f_val
 
         # save flight model
-        self.__emula_model = f_val
+        self.__emula = f_val
+
+    # ---------------------------------------------------------------------------------------------
+    @property
+    def sck_http(self):
+        """
+        get http server listener
+        """
+        return self.__sck_http
+                                            
+    @sck_http.setter
+    def sck_http(self, f_val):
+        """
+        set http server listener
+        """
+        self.__sck_http = f_val
 
     # ---------------------------------------------------------------------------------------------
     @property

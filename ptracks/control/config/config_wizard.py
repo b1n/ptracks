@@ -36,7 +36,7 @@ __date__ = "2015/11"
 import os
 
 # model 
-import ptracks.model.data as data
+import ptracks.model.common.data as data
 
 # control
 import ptracks.control.config.config_manager as config
@@ -48,8 +48,7 @@ class CConfigWizard(config.CConfigManager):
     mantém as informações de configuração do wizard
     """
     # informações comuns de configuração
-    __CFG_WIZARD = {"glb.exe": None,      # exercício
-                   }  # __CFG_WIZARD
+    __CFG_WIZARD = {}  # __CFG_WIZARD
 
     # ---------------------------------------------------------------------------------------------
     def __init__(self, fs_config):
@@ -70,19 +69,6 @@ class CConfigWizard(config.CConfigManager):
                 self.dct_config[l_key] = self.__CFG_WIZARD[l_key]
 
         # load dirs section
-        self.__load_dirs()
-
-    # ---------------------------------------------------------------------------------------------
-    def __load_dirs(self):
-        """
-        carrega as configurações de diretórios
-        """
-        # monta o diretório de imagens
-        self.dct_config["dir.exe"] = data.filepath(os.path.join(self.dct_config["dir.dat"],
-                                                                self.dct_config["dir.exe"]))
-
-        # monta o diretório de imagens
-        self.dct_config["dir.img"] = data.filepath(os.path.join(self.dct_config["dir.dat"],
-                                                                self.dct_config["dir.img"]))
+        self.load_dirs()
 
 # < the end >--------------------------------------------------------------------------------------

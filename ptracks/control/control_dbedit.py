@@ -32,11 +32,14 @@ __date__ = "2015/11"
 
 # < imports >--------------------------------------------------------------------------------------
 
+# PyQt library
+from PyQt4 import QtCore
+
 # model 
-import ptracks.model.model_dbedit as model
+import ptracks.model.dbedit.model_dbedit as model
 
 # view 
-import ptracks.view.view_dbedit as view
+import ptracks.view.dbedit.view_dbedit as view
 
 # control 
 import ptracks.control.control_manager as control
@@ -58,24 +61,30 @@ class CControlDBEdit(control.CControlManager):
         # initialize super class
         super(CControlDBEdit, self).__init__()
 
-        # herdados de ControlManager
+        # herdados de CControlManager
+        # self.app       # the application
         # self.event     # event manager
         # self.config    # opções de configuração
         # self.model     # model manager
         # self.view      # view manager
         # self.voip      # biblioteca de VoIP
-
+                                                        
         # carrega o arquivo com as opções de configuração
         self.config = config.CConfigDBEdit("tracks.cfg")
         assert self.config
 
-        # obtém o dicionário de configuração
-        # self.__dct_config = self.config.dct_config
-        # assert self.__dct_config
+        # create application
+        self.create_app("dbedit")
+
+        # show message
+        self.splash.showMessage("creating model...", QtCore.Qt.AlignHCenter | QtCore.Qt.AlignBottom, QtCore.Qt.white)
 
         # instancia o model
         self.model = model.CModelDBEdit(self)
         assert self.model
+
+        # show message
+        self.splash.showMessage("creating view...", QtCore.Qt.AlignHCenter | QtCore.Qt.AlignBottom, QtCore.Qt.white)
 
         # instancia a view
         self.view = view.CViewDBEdit(self)

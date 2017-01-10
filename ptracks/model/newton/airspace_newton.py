@@ -4,8 +4,7 @@
 ---------------------------------------------------------------------------------------------------
 airspace_newton
 
-basic model manager
-load from one configuration file all configured tables
+basic airspace. Load from one configuration file all configured tables
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -40,8 +39,11 @@ __date__ = "2015/11"
 import logging
 import os
 
+# libs
+import ptracks.libs.coords.pos_lat_lng as pll
+
 # model
-import ptracks.model.stock.airspace_basic as airs
+import ptracks.model.common.airspace_basic as airs
 
 import ptracks.model.items.apx_data as apxdata
 import ptracks.model.items.esp_data as espdata
@@ -71,7 +73,6 @@ class CAirspaceNewton(airs.CAirspaceBasic):
         # self.dct_aer         # dicionário de aeródromos
         # self.lst_arr_dep     # lista de pousos/decolagens
         # self.dct_fix         # dicionário de fixos
-        # self.dct_fix_indc    # dicionário de fixos por indicativo
 
         # procedimentos de aproximação
         self.__dct_apx = {}
@@ -86,43 +87,6 @@ class CAirspaceNewton(airs.CAirspaceBasic):
         self.__dct_trj = {}
 
     # ---------------------------------------------------------------------------------------------
-    def get_aer_pst(self, fs_aer, fs_pst):
-        """
-        obtém o pointer para o aeródromo e pista
-
-        @param fs_aer: indicativo do aeródromo
-        @param fs_pst: indicativo da pista
-
-        @return pointer para o aeródromo e pista
-        """
-        # obtém o aeródromo
-        l_aer = self.dct_aer.get(fs_aer, None)
-
-        if l_aer is None:
-            # logger
-            l_log = logging.getLogger("CAirspaceNewton::get_aer_pst")
-            l_log.setLevel(logging.ERROR)
-            l_log.error(u"<E01: não existe aeródromo [{}].".format(fs_aer))
-
-            # retorna pointers
-            return None, None
-
-        # obtém a pista
-        l_pst = l_aer.dct_aer_pistas.get(fs_pst, None)
-
-        if l_pst is None:
-            # logger
-            l_log = logging.getLogger("CAirspaceNewton::get_aer_pst")
-            l_log.setLevel(logging.ERROR)
-            l_log.error(u"<E02: não existe pista [{}] no aeródromo [{}].".format(fs_pst, fs_aer))
-
-            # retorna pointers
-            return l_aer, None
-
-        # retorna pointers
-        return l_aer, l_pst
-
-    # ---------------------------------------------------------------------------------------------
     def get_brk_prc(self, f_brk):
         """
         DOCUMENT ME!
@@ -131,6 +95,33 @@ class CAirspaceNewton(airs.CAirspaceBasic):
         if f_brk.ptr_brk_prc is not None:
             # obtém o procedimento e a função operacional
             f_brk.ptr_brk_prc, f_brk.en_brk_fnc_ope = self.get_ptr_prc(f_brk.ptr_brk_prc)
+
+    # ---------------------------------------------------------------------------------------------
+    def get_position(self, fs_indc):
+        """
+        get position of a aerodome/fix/vor/ndb/... named as specified
+
+        @param fs_indc: indicativo do objeto (str)
+        """
+        # check input
+        # assert f_model
+
+        # pesquisa aeródromos
+        l_aer = self.dct_aer.get(fs_indc, None)
+
+        if l_aer is not None:
+            # return
+            return pll.CPosLatLng(l_aer.f_aer_lat, l_aer.f_aer_lng)
+
+        # pesquisa fixos
+        l_key = self.dct_fix.get(fs_indc, None)
+
+        if l_key is not None:
+            # return
+            return pll.CPosLatLng(l_fix.f_fix_lat, l_fix.f_fix_lng)
+
+        # return
+        return None
 
     # ---------------------------------------------------------------------------------------------
     def get_ptr_prc(self, fs_prc):
@@ -359,14 +350,14 @@ class CAirspaceNewton(airs.CAirspaceBasic):
     @property
     def dct_apx(self):
         """
-        get aproximação
+        get aproximações
         """
         return self.__dct_apx
 
     @dct_apx.setter
     def dct_apx(self, f_val):
         """
-        set aproximação
+        set aproximações
         """
         self.__dct_apx = f_val
 

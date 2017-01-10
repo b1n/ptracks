@@ -37,7 +37,7 @@ import logging
 
 # model
 import ptracks.model.newton.defs_newton as ldefs
-# import model.emula.cine.cine_item as item
+# import ptracks.model.emula.cine.cine_item as item
 
 # < module data >----------------------------------------------------------------------------------
 
